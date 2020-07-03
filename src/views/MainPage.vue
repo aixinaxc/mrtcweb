@@ -124,6 +124,7 @@
     import VideoPage from '../components/Video.vue'
     import Chat from '../components/Chat.vue'
     import AFormItem from "ant-design-vue/es/form/FormItem";
+    import StreamHandle from '../assets/js/StreamHandle.js'
 
     export default {
         name: "MainPage",
@@ -167,7 +168,8 @@
         },
         methods: {
             beforeUpload(file) {
-                this.$refs.video.addMusicStream(file)
+                //this.$refs.video.addMusicStream(file)
+                StreamHandle.fileStream(file)
             },
             getDevices(deviceInfos) {
                 deviceInfos.forEach(function (deviceInfo) {

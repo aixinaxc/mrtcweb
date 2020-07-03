@@ -34,7 +34,6 @@
 <script>
     import SmallVideo from './SmallVideo.vue'
     import {LocalStream} from 'ion-sdk-js';
-    import MultiStreamsMixer from 'multistreamsmixer';
     import StreamHandle from '../assets/js/StreamHandle.js'
 
     export default {
@@ -99,7 +98,7 @@
 
                         //对audio进行混流
                         if(StreamHandle.streamData.length > 1){
-                            let audioTrack = StreamHandle.mixAudioStream(this.client.local,StreamHandle.streamData)
+                            let audioTrack = StreamHandle.mixAudioStream(this.client.local.clone(),StreamHandle.streamData)
                             this.client.local.removeTrack(this.client.local.getAudioTracks()[0])
                             this.client.local.addTrack(audioTrack)
                         }
@@ -131,9 +130,10 @@
                         video: true
                     });
 
-                    let videoTrack = StreamHandle.mixVideoStream(this.client.local,this.local.localScreen)
+                    let videoTrack = StreamHandle.mixVideoStream(this.client.local.clone(),this.local.localScreen.clone())
                     this.local.localScreen.removeTrack(this.local.localScreen.getVideoTracks()[0])
                     this.local.localScreen.addTrack(videoTrack)
+
 
                     await this.client.publish(this.local.localScreen);
                     console.log("this.local.localScreen", this.local.localScreen.getTracks())
@@ -191,9 +191,9 @@
                     }
                 }
             },
-            addMusicStream(file){
+/*            addMusicStream(file){
                 StreamHandle.fileStream(file)
-            }
+            }*/
         }
     }
 </script>

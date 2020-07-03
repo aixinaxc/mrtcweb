@@ -33,12 +33,12 @@ const StreamHandle = {
     },
     //对音频进行混流
     mixAudioStream(localStream,otherStream){
-        let sysAudioStream=new MediaStream();//创建一个媒体流
+        /*let sysAudioStream=new MediaStream();//创建一个媒体流
         if(localStream == null || localStream.getAudioTracks()[0] == null){
             console.log("无效的输入流")
             return null;
         }
-        sysAudioStream.addTrack(localStream.getAudioTracks()[0]);//把麦克风音轨添加到新的媒体流
+        sysAudioStream.addTrack(localStream.getAudioTracks()[0]);//把麦克风音轨添加到新的媒体流*/
         console.log("sysAudioStream",sysAudioStream)
         let stream = []
         stream.push(sysAudioStream)
@@ -50,9 +50,7 @@ const StreamHandle = {
         return audioMixer.getMixedStream().getAudioTracks()[0]
     },
     //对摄像头和录屏进行混流
-    mixVideoStream(cameraStream,screenStream){
-        let stream=new MediaStream();//创建一个媒体流
-        stream.addTrack(screenStream.getVideoTracks()[0]);//把麦克风音轨添加到新的媒体流
+    mixVideoStream(cameraStream,stream){
         stream.fullcanvas = true;
         stream.width = screen.width; // or 3840
         stream.height = screen.height; // or 2160
