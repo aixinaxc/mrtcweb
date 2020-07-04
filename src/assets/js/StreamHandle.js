@@ -39,9 +39,9 @@ const StreamHandle = {
             return null;
         }
         sysAudioStream.addTrack(localStream.getAudioTracks()[0]);//把麦克风音轨添加到新的媒体流*/
-        console.log("sysAudioStream",sysAudioStream)
+        //console.log("sysAudioStream",sysAudioStream)
         let stream = []
-        stream.push(sysAudioStream)
+        stream.push(localStream)
         otherStream.forEach((item,index,array)=>{
             stream.push(item)
             //执行代码
