@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import App from './App.vue'
-import {Button,Layout,Modal,Menu,Form,Tooltip,Input,Select,Upload,Icon} from 'ant-design-vue';
+import {Button,Layout,Modal,Menu,Form,Tooltip,Input,Select,Upload,Icon,Row,Col} from 'ant-design-vue';
 //import Antd from 'ant-design-vue';
 import router from './router'
 import store from './store'
@@ -24,6 +24,8 @@ Vue.component(Input.name,Input)
 Vue.component(Select.name,Select)
 Vue.component(Select.Option.name,Select.Option)
 Vue.component(Upload.name,Upload)
+Vue.component(Row.name,Row)
+Vue.component(Col.name,Col)
 
 
 new Vue({
