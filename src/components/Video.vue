@@ -183,6 +183,7 @@
                         break;
                     }
                 }
+                this.streams = this.$StreamHandle.remotes
             },
         }
     }
