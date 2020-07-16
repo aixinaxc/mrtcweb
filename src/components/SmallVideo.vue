@@ -7,7 +7,7 @@
                 class="small-video-size"
         />
         <div class="small-video-id-div">
-            <a class="small-video-id-a">{{stream.mid}}</a>
+            <a class="small-video-id-a">{{stream.stream.info.userInfo.userName}}</a>
         </div>
     </div>
 </template>
@@ -26,6 +26,7 @@
         },
         methods:{
             openStream(){
+                console.log("this.stream.stream",this.stream)
                 this.$refs.smallVideo.srcObject = this.stream.stream
             }
         }

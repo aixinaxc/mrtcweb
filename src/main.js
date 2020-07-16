@@ -4,6 +4,7 @@ import {Button,Layout,Modal,Menu,Form,Tooltip,Input,Select,Upload,Icon,Row,Col} 
 //import Antd from 'ant-design-vue';
 import router from './router'
 import store from './store'
+import StreamHandle from './assets/js/StreamHandle.js'
 //import 'ant-design-vue/dist/antd.css';
 Vue.use(Modal);
 Vue.config.productionTip = false
@@ -27,7 +28,7 @@ Vue.component(Upload.name,Upload)
 Vue.component(Row.name,Row)
 Vue.component(Col.name,Col)
 
-
+Vue.prototype.$StreamHandle = StreamHandle
 new Vue({
   router,
   store,

@@ -9,7 +9,7 @@
                         Mute/Cancel
                     </template>
                     <a-button ghost type="link" size="large" icon="audio"
-                              :style=" + local.audioMuted?'':'color:red'" v-show="config.scene=='sub'?false:true"
+                              :style=" + local.audioMuted?'':'color:red'" v-show="$StreamHandle.scene=='sub'?false:true"
                               @click="muteMediaTrack('audio', local.audioMuted)"/>
                 </a-tooltip>
                 <a-tooltip>
@@ -17,7 +17,7 @@
                         Open/Close video
                     </template>
                     <a-button ghost type="link" size="large" icon="video-camera"
-                              :style=" + local.videoMuted?'':'color:red'" v-show="config.scene=='sub'?false:true"
+                              :style=" + local.videoMuted?'':'color:red'" v-show="$StreamHandle.scene=='sub'?false:true"
                               @click="muteMediaTrack('video', local.videoMuted)"/>
                 </a-tooltip>
                 <a-tooltip>
@@ -30,8 +30,8 @@
                     <template slot="title">
                         Share desktop
                     </template>
-                    <a-button ghost type="link" size="large" icon="desktop" v-show="config.scene=='sub'?false:true"
-                              :style=" + local.localScreenState?'color:red':''" @click="ScreenSharing()"/>
+                    <a-button ghost type="link" size="large" icon="desktop" v-show="$StreamHandle.scene=='sub'?false:true"
+                              :style=" + screen.state?'color:red':''" @click="ScreenSharing()"/>
                 </a-tooltip>
                 <a-tooltip>
                     <template slot="title">
@@ -58,7 +58,7 @@
             </a-layout-sider>
 
             <a-layout-content class="app-right-layout">
-                <videoPage ref="video" :client="client" :local="local"></videoPage>
+                <videoPage ref="video" :client="client" :local="local" :screen="screen"></videoPage>
             </a-layout-content>
 
         </a-layout>
@@ -124,7 +124,7 @@
     import VideoPage from '../components/Video.vue'
     import Chat from '../components/Chat.vue'
     import AFormItem from "ant-design-vue/es/form/FormItem";
-    import StreamHandle from '../assets/js/StreamHandle.js'
+    //import StreamHandle from '../assets/js/StreamHandle.js'
 
     export default {
         name: "MainPage",
@@ -132,6 +132,15 @@
             AFormItem,
             videoPage: VideoPage,
             chat: Chat
+        },
+        watch: {
+            $StreamHandle: {//深度监听，可监听到对象、数组的变化
+                handler(val, oldVal) {
+                    console.log("streams change111");
+                    //this.localId = this.streams[0].mid
+                },
+                deep: true //true 深度监听
+            }
         },
         data() {
             return {
@@ -144,18 +153,9 @@
                     closable: false,
                     visible: true,
                     confirmLoading: false,
-                    user: {},
-                    room: {},
-                    scene: "sub",
                 },
-                local: {
-                    localStream: null,
-                    localStreamState: false,
-                    localScreen: null,
-                    localScreenState: false,
-                    audioMuted: false,
-                    videoMuted: false
-                }
+                local:{},
+                screen:{}
             }
         },
         created() {
@@ -163,13 +163,13 @@
         },
         mounted() {
             // this.$refs.video.getMixedMicrophoneAndMp3()
-            console.log("navigator.mediaDevices.enumerateDevices()", navigator.mediaDevices.enumerateDevices().then(this.getDevices))
+            //console.log("navigator.mediaDevices.enumerateDevices()", navigator.mediaDevices.enumerateDevices().then(this.getDevices))
             console.log("navigator.mediaDevices.getSupportedConstraints()", navigator.mediaDevices.getSupportedConstraints())
         },
         methods: {
             beforeUpload(file) {
                 //this.$refs.video.addMusicStream(file)
-                StreamHandle.fileStream(file)
+                this.$StreamHandle.fileStream(file)
             },
             getDevices(deviceInfos) {
                 deviceInfos.forEach(function (deviceInfo) {
@@ -181,24 +181,30 @@
                     console.log("--------------------------", err)
                     if (!err) {
                         console.log('Received values of form: ', values);
-                        this.config.scene = values.scene
+                        /*this.config.scene = values.scene
                         this.config.user.uid = md5(values.userName)
                         this.config.user.name = values.userName
                         this.config.room.rid = md5(values.roomName)
-                        this.config.room.name = values.roomName
+                        this.config.room.name = values.roomName*/
+                        this.$StreamHandle.scene = values.scene
+                        this.$StreamHandle.roomInfo.roomId = md5(values.roomName)
+                        this.$StreamHandle.roomInfo.roomName = values.roomName
+                        let userInfo = {
+                            userId : md5(values.userName),
+                            userName : values.userName
+                        }
+                        this.$StreamHandle.userInfos.push(userInfo)
                         this.CLIENT()//创建连接
                         this.config.visible = false
                     }
                 });
             },
             joinRoom() {
-                this.client.join(this.config.room.rid, {
-                    uid: this.config.user.uid,
-                    username: this.config.user.name,
-                    rid: this.config.room.rid,
-                    roomname: this.config.room.name
+                this.client.join(this.$StreamHandle.roomInfo.roomId, {
+                    roomInfo : this.$StreamHandle.roomInfo,
+                    userInfo : this.$StreamHandle.userInfos[0]
                 });
-                if (this.config.scene == "meeting" || this.config.scene == "pub") {
+                if (this.$StreamHandle.scene == "meeting" || this.$StreamHandle.scene == "pub") {
                     this.$refs.video.localStreamFunc(true)
                 }
             },
@@ -210,40 +216,44 @@
                 await this.client.leave();
                 this.visible = false
                 this.config.visible = true
-                this.local.localStreamState = false
+                //this.local.localStreamState = false
+                this.$StreamHandle.local.state = false
+                this.local = this.$StreamHandle.local
             },
             handleCancel(e) {
                 console.log('Clicked cancel button');
                 this.visible = false;
             },
             ScreenSharing() {
-                this.local.localScreenState = !this.local.localScreenState
+                this.screen.state = this.$StreamHandle.screen.state = !this.$StreamHandle.screen.state
                 this.$refs.video.handleScreenSharing()
             },
             muteMediaTrack(type, enabled) {
-                if (!this.client.local) {
+                if (!this.$StreamHandle.local.stream) {
                     return
                 }
                 if (enabled) {
-                    this.client.local.unmute(type)
+                    this.$StreamHandle.local.stream.unmute(type)
                 } else {
-                    this.client.local.mute(type)
+                    this.$StreamHandle.local.stream.mute(type)
                 }
                 if (type === "audio") {
-                    this.local.audioMuted = !enabled
+                    this.$StreamHandle.local.audioMuted = !enabled
                 } else if (type === "video") {
-                    this.local.videoMuted = !enabled
+                    this.$StreamHandle.local.videoMuted = !enabled
                 }
+                this.local = this.$StreamHandle.local
             },
             CLIENT() {
                 let that = this
                 let config = {
                     url: this.url,
-                    uid: this.config.user.uid
+                    uid: this.$StreamHandle.userInfos[0].userId
                 }
                 const client = new Client(config);
                 client.on("peer-join", (id, info) => {
                     console.log("peer-join", id, info)
+                    this.$StreamHandle.userInfos.push(info.userInfo)//保存进入该房间的人员信息
                     this.$notification['success']({message: '欢迎' + info.username + "加入" + info.roomname})
                 });
                 client.on("peer-leave", (id) => {

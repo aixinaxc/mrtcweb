@@ -1,6 +1,25 @@
 import MultiStreamsMixer from 'multistreamsmixer';
 
 const StreamHandle = {
+    scene:"meeting",//场景，默认会议
+    roomInfo : {//房间信息
+        roomId : "",
+        roomName : ""
+    },
+    userInfos : [],//用户信息
+    local : {
+        mid : "",
+        stream : {},
+        state  : false,
+        audioMuted : false,
+        videoMuted: false
+    },
+    screen : {
+        mid : "",
+        stream : {},
+        state  : false
+    },
+    remotes : [],
     streamData : [],
     //对上传的文件流化
     fileStream(file){
@@ -31,6 +50,14 @@ const StreamHandle = {
             that.streamData = destination.stream
         }
     },
+    startMixAudioStream(){
+        //对audio进行混流
+        if(StreamHandle.streamData.length > 1){
+            let audioTrack = StreamHandle.mixAudioStream(this.local.stream.clone(),this.streamData)
+            this.local.stream.removeTrack(this.local.stream.getAudioTracks()[0])
+            this.local.stream.addTrack(audioTrack)
+        }
+    },
     //对音频进行混流
     mixAudioStream(localStream,otherStream){
         /*let sysAudioStream=new MediaStream();//创建一个媒体流
@@ -48,6 +75,11 @@ const StreamHandle = {
         });
         let audioMixer = new MultiStreamsMixer(stream);
         return audioMixer.getMixedStream().getAudioTracks()[0]
+    },
+    startMixVideoStream(){
+        let videoTrack = StreamHandle.mixVideoStream(this.local.stream.clone(),this.screen.stream.clone())
+        this.screen.stream.removeTrack(this.screen.stream.getVideoTracks()[0])
+        this.screen.stream.addTrack(videoTrack)
     },
     //对摄像头和录屏进行混流
     mixVideoStream(cameraStream,stream){
