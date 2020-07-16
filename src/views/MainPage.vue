@@ -193,7 +193,7 @@
                             userId : md5(values.userName),
                             userName : values.userName
                         }
-                        this.$StreamHandle.userInfos.push(userInfo)
+                        this.$StreamHandle.userInfo = userInfo
                         this.CLIENT()//创建连接
                         this.config.visible = false
                     }
@@ -202,7 +202,7 @@
             joinRoom() {
                 this.client.join(this.$StreamHandle.roomInfo.roomId, {
                     roomInfo : this.$StreamHandle.roomInfo,
-                    userInfo : this.$StreamHandle.userInfos[0]
+                    userInfo : this.$StreamHandle.userInfo.userId
                 });
                 if (this.$StreamHandle.scene == "meeting" || this.$StreamHandle.scene == "pub") {
                     this.$refs.video.localStreamFunc(true)
@@ -248,12 +248,12 @@
                 let that = this
                 let config = {
                     url: this.url,
-                    uid: this.$StreamHandle.userInfos[0].userId
+                    uid: this.$StreamHandle.userInfo.userId
                 }
                 const client = new Client(config);
                 client.on("peer-join", (id, info) => {
                     console.log("peer-join", id, info)
-                    this.$StreamHandle.userInfos.push(info.userInfo)//保存进入该房间的人员信息
+                    //this.$StreamHandle.userInfos.push(info.userInfo)//保存进入该房间的人员信息
                     this.$notification['success']({message: '欢迎' + info.username + "加入" + info.roomname})
                 });
                 client.on("peer-leave", (id) => {
