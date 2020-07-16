@@ -133,15 +133,6 @@
             videoPage: VideoPage,
             chat: Chat
         },
-        watch: {
-            $StreamHandle: {//深度监听，可监听到对象、数组的变化
-                handler(val, oldVal) {
-                    console.log("streams change111");
-                    //this.localId = this.streams[0].mid
-                },
-                deep: true //true 深度监听
-            }
-        },
         data() {
             return {
                 url: "wss://" + window.location.hostname + ":8443/ws",
@@ -162,7 +153,6 @@
 
         },
         mounted() {
-            // this.$refs.video.getMixedMicrophoneAndMp3()
             //console.log("navigator.mediaDevices.enumerateDevices()", navigator.mediaDevices.enumerateDevices().then(this.getDevices))
             console.log("navigator.mediaDevices.getSupportedConstraints()", navigator.mediaDevices.getSupportedConstraints())
         },
@@ -181,11 +171,6 @@
                     console.log("--------------------------", err)
                     if (!err) {
                         console.log('Received values of form: ', values);
-                        /*this.config.scene = values.scene
-                        this.config.user.uid = md5(values.userName)
-                        this.config.user.name = values.userName
-                        this.config.room.rid = md5(values.roomName)
-                        this.config.room.name = values.roomName*/
                         this.$StreamHandle.scene = values.scene
                         this.$StreamHandle.roomInfo.roomId = md5(values.roomName)
                         this.$StreamHandle.roomInfo.roomName = values.roomName
@@ -216,7 +201,6 @@
                 await this.client.leave();
                 this.visible = false
                 this.config.visible = true
-                //this.local.localStreamState = false
                 this.$StreamHandle.local.state = false
                 this.local = this.$StreamHandle.local
             },
